@@ -2,32 +2,219 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #f0f0f0;
+:root {
+  --primary-color: #4361ee;
+  --secondary-color: #3f37c9;
+  --accent-color: #4895ef;
+  --text-color: #2b2d42;
+  --light-bg: #f8f9fa;
 }
+
+body {
+  background: linear-gradient(135deg, #4361ee, #4895ef);
+  min-height: 100vh;
+  color: var(--text-color);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 .weather-container {
   margin-top: 50px;
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.weather-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.search-section {
+  background: var(--light-bg);
   padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 25px;
+}
+
+.form-control {
+  border: 2px solid #e9ecef;
   border-radius: 10px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem rgba(72, 149, 239, 0.25);
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  margin: 5px;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background: var(--accent-color);
+  border: none;
+}
+
+.btn-success:hover {
+  background: #3d84d5;
+  transform: translateY(-2px);
+}
+
+.weather-info {
+  background: var(--light-bg);
+  border-radius: 15px;
+  padding: 25px;
+  margin-top: 30px;
+  transition: all 0.3s ease;
+  animation: slideIn 0.5s ease-out;
+}
+
+.weather-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  display: block;
+  animation: float 3s ease-in-out infinite;
+}
+
+.weather-details {
+  margin-top: 20px;
+}
+
+.weather-details p {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.weather-details p:hover {
+  transform: translateX(5px);
+  background: #f8f9fa;
+}
+
+.forecast {
+  margin-top: 30px;
+}
+
+.forecast-day {
+  background: white;
+  border-radius: 15px;
+  padding: 15px;
+  margin: 10px;
+  transition: all 0.3s ease;
+  animation: slideUp 0.5s ease-out;
+}
+
+.forecast-day:hover {
+  transform: translateY(-5px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
-.weather-info {
-  display: flex;
-  align-items: center;
+
+.forecast-day img {
+  width: 50px;
+  height: 50px;
+  margin: 10px auto;
+  display: block;
 }
-.weather-info img {
-  width: 100px;
-}
-.forecast {
-  margin-top: 20px;
-}
-.forecast-day {
-  background-color: #e9ecef;
-  border-radius: 5px;
+
+/* Custom Select Styling */
+.form-select {
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
   padding: 10px;
-  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
-.temp-toggle {
-  margin-top: 20px;
+
+.form-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem rgba(72, 149, 239, 0.25);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Loading Animation */
+.loading {
+  display: none;
+  text-align: center;
+  padding: 20px;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

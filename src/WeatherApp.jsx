@@ -2,7 +2,14 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.min.css";
-import "./index.css"; 
+import {
+  WiDaySunny,
+  WiRain,
+  WiCloudy,
+  WiSnow,
+  WiThunderstorm,
+} from "weather-icons-react";
+import "./index.css";
 
 const WeatherApp = () => {
   const [city, setCity] = useState("");
@@ -42,7 +49,7 @@ const WeatherApp = () => {
       setWeatherData(weather);
 
       await fetchForecast(lat, lon);
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       alert("Unable to fetch weather for your location.");
     } finally {
@@ -83,7 +90,28 @@ const WeatherApp = () => {
       alert("Geolocation is not supported by your browser.");
     }
   };
+  const getWeatherIcon = (iconCode) => {
+    const size = 50;
+    const color = "#1a237e";
 
+    switch (iconCode.slice(0, -1)) {
+      case "01":
+        return <WiDaySunny size={size} color={color} />;
+      case "02":
+      case "03":
+      case "04":
+        return <WiCloudy size={size} color={color} />;
+      case "09":
+      case "10":
+        return <WiRain size={size} color={color} />;
+      case "11":
+        return <WiThunderstorm size={size} color={color} />;
+      case "13":
+        return <WiSnow size={size} color={color} />;
+      default:
+        return <WiDaySunny size={size} color={color} />;
+    }
+  };
   return (
     <div className="container">
       <div className="weather-container">
@@ -110,7 +138,10 @@ const WeatherApp = () => {
               <button className="btn btn-primary" onClick={handleSearch}>
                 <i className="fa fa-cloud-sun"></i> Get Weather
               </button>
-              <button className="btn btn-success" onClick={handleLocationSearch}>
+              <button
+                className="btn btn-success"
+                onClick={handleLocationSearch}
+              >
                 <i className="fa fa-location-dot"></i> My Location
               </button>
             </div>
@@ -142,13 +173,14 @@ const WeatherApp = () => {
         {weatherData && (
           <div className="weather-info">
             <div className="text-center">
-              <img
-                className="weather-icon"
-                src={`http://openweathermap.org/img/w/${weatherData.weather[0].icon}.png`}
-                alt="Weather icon"
-              />
+              <div className="weather-icon-large">
+                {getWeatherIcon(weatherData.weather[0].icon)}
+              </div>
               <h3>{`${weatherData.name}, ${weatherData.sys.country}`}</h3>
-              <p className="text-muted">
+              <h2 className="temperature">
+                {Math.round(weatherData.main.temp)}°
+              </h2>
+              <p className="description">
                 {weatherData.weather[0].description}
               </p>
             </div>
@@ -180,19 +212,21 @@ const WeatherApp = () => {
             {forecastData.map((forecast, index) => (
               <div className="col-md-2 mb-3" key={index}>
                 <div className="forecast-day">
-                  <p>
-                    {new Date(forecast.dt * 1000).toLocaleDateString(undefined, {
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                  <p className="forecast-date">
+                    {new Date(forecast.dt * 1000).toLocaleDateString(
+                      undefined,
+                      {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                      }
+                    )}
                   </p>
-                  <img
-                    src={`http://openweathermap.org/img/w/${forecast.weather[0].icon}.png`}
-                    alt="Forecast icon"
-                  />
-                  <p>{Math.round(forecast.main.temp)}°</p>
-                  <p className="text-muted small">
+                  {getWeatherIcon(forecast.weather[0].icon)}
+                  <p className="forecast-temp">
+                    {Math.round(forecast.main.temp)}°
+                  </p>
+                  <p className="forecast-desc">
                     {forecast.weather[0].description}
                   </p>
                 </div>

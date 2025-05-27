@@ -1,15 +1,5 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "font-awesome/css/font-awesome.min.css";
-import {
-  WiDaySunny,
-  WiRain,
-  WiCloudy,
-  WiSnow,
-  WiThunderstorm,
-} from "weather-icons-react";
-import "./index.css";
+import { Search, MapPin, Thermometer, Droplets, Wind, Sun, Cloud, CloudRain, CloudSnow, Zap, Gauge } from "lucide-react";
 
 const WeatherApp = () => {
   const [city, setCity] = useState("");
@@ -17,22 +7,23 @@ const WeatherApp = () => {
   const [loading, setLoading] = useState(false);
   const [weatherData, setWeatherData] = useState(null);
   const [forecastData, setForecastData] = useState([]);
+  const [error, setError] = useState("");
+
   const apiKey = "09ecf14dbb13338f728749c366f9f264";
 
   const fetchWeather = async (cityName) => {
     try {
       setLoading(true);
+      setError("");
       const weatherResponse = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=${unit}&appid=${apiKey}`
       );
-
       if (!weatherResponse.ok) throw new Error("City not found");
       const weather = await weatherResponse.json();
       setWeatherData(weather);
-
       await fetchForecast(weather.coord.lat, weather.coord.lon);
     } catch (error) {
-      alert(error.message);
+      setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -41,17 +32,15 @@ const WeatherApp = () => {
   const fetchWeatherByCoords = async (lat, lon) => {
     try {
       setLoading(true);
+      setError("");
       const weatherResponse = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${unit}&appid=${apiKey}`
       );
-
       const weather = await weatherResponse.json();
       setWeatherData(weather);
-
       await fetchForecast(lat, lon);
-      // eslint-disable-next-line no-unused-vars
     } catch (error) {
-      alert("Unable to fetch weather for your location.");
+      setError("Unable to fetch weather for your location.");
     } finally {
       setLoading(false);
     }
@@ -62,178 +51,217 @@ const WeatherApp = () => {
       const forecastResponse = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${unit}&appid=${apiKey}`
       );
-
       const forecast = await forecastResponse.json();
-      setForecastData(forecast.list.filter((_, index) => index % 8 === 0)); // Get daily forecast
+      setForecastData(forecast.list.filter((_, index) => index % 8 === 0));
     } catch (error) {
       console.error("Error fetching forecast:", error);
     }
   };
 
   const handleSearch = () => {
-    if (city) {
-      fetchWeather(city);
+    if (city.trim()) {
+      fetchWeather(city.trim());
     } else {
-      alert("Please enter a city name");
+      setError("Please enter a city name");
     }
   };
 
   const handleLocationSearch = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        fetchWeatherByCoords(
-          position.coords.latitude,
-          position.coords.longitude
-        );
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchWeatherByCoords(position.coords.latitude, position.coords.longitude);
+        },
+        () => {
+          setError("Unable to access your location.");
+        }
+      );
     } else {
-      alert("Geolocation is not supported by your browser.");
+      setError("Geolocation is not supported by your browser.");
     }
   };
-  const getWeatherIcon = (iconCode) => {
-    const size = 50;
-    const color = "#1a237e";
 
-    switch (iconCode.slice(0, -1)) {
+  const getWeatherIcon = (iconCode, size = "sm") => {
+    const iconSize = size === "lg" ? 80 : 40;
+    const iconClass = `weather-icon ${size === "lg" ? "large" : "small"}`;
+    const weatherType = iconCode.slice(0, -1);
+    switch (weatherType) {
       case "01":
-        return <WiDaySunny size={size} color={color} />;
+        return <Sun className={`${iconClass} sun`} size={iconSize} />;
       case "02":
       case "03":
+        return <Cloud className={`${iconClass} cloud`} size={iconSize} />;
       case "04":
-        return <WiCloudy size={size} color={color} />;
+        return <Cloud className={`${iconClass} cloud-dark`} size={iconSize} />;
       case "09":
       case "10":
-        return <WiRain size={size} color={color} />;
+        return <CloudRain className={`${iconClass} rain`} size={iconSize} />;
       case "11":
-        return <WiThunderstorm size={size} color={color} />;
+        return <Zap className={`${iconClass} thunder`} size={iconSize} />;
       case "13":
-        return <WiSnow size={size} color={color} />;
+        return <CloudSnow className={`${iconClass} snow`} size={iconSize} />;
       default:
-        return <WiDaySunny size={size} color={color} />;
+        return <Sun className={`${iconClass} sun`} size={iconSize} />;
     }
   };
+
+  const getTemperatureUnit = () => (unit === "metric" ? "°C" : "°F");
+  const getWindUnit = () => (unit === "metric" ? "m/s" : "mph");
+
   return (
-    <div className="container">
-      <div className="weather-container">
-        <h2 className="text-center mb-4">Weather Forecast</h2>
-
-        <div className="search-section">
-          <div className="row g-3 align-items-center">
-            <div className="col-md-8">
-              <div className="input-group">
-                <span className="input-group-text">
-                  <i className="fa fa-search"></i>
-                </span>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Enter city name..."
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                />
-              </div>
-            </div>
-            <div className="col-md-4">
-              <button className="btn btn-primary" onClick={handleSearch}>
-                <i className="fa fa-cloud-sun"></i> Get Weather
-              </button>
-              <button
-                className="btn btn-success"
-                onClick={handleLocationSearch}
-              >
-                <i className="fa fa-location-dot"></i> My Location
-              </button>
-            </div>
+    <div className="weather-app">
+      <div className="container">
+        <div className="weather-card main-card">
+          <div className="card-header">
+            <h1 className="app-title">Weather Forecast</h1>
           </div>
 
-          <div className="temp-toggle text-center mt-3">
-            <label htmlFor="unitToggle">
-              <i className="fa fa-temperature-high"></i> Display in:{" "}
-            </label>
-            <select
-              id="unitToggle"
-              className="form-select d-inline w-auto"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-            >
-              <option value="metric">Celsius</option>
-              <option value="imperial">Fahrenheit</option>
-            </select>
-          </div>
-        </div>
+          <div className="card-content">
+            {/* Search Section */}
+            <div className="search-card">
+              <div className="search-content">
+                <div className="search-row">
+                  <div className="search-input-container">
+                    <div className="input-wrapper">
+                      <Search className="search-icon" size={20} />
+                      <input
+                        type="text"
+                        placeholder="Enter city name..."
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                        className="search-input"
+                      />
+                    </div>
+                  </div>
 
-        {loading && (
-          <div id="loading" className="loading">
-            <div className="loading-spinner"></div>
-            <p className="mt-3">Fetching weather data...</p>
-          </div>
-        )}
+                  <div className="button-group">
+                    <button onClick={handleSearch} className="btn btn-primary" disabled={loading}>
+                      <Search className="btn-icon" size={16} />
+                      Search
+                    </button>
+                    <button onClick={handleLocationSearch} className="btn btn-outline" disabled={loading}>
+                      <MapPin className="btn-icon" size={16} />
+                      Location
+                    </button>
+                  </div>
+                </div>
 
-        {weatherData && (
-          <div className="weather-info">
-            <div className="text-center">
-              <div className="weather-icon-large">
-                {getWeatherIcon(weatherData.weather[0].icon)}
-              </div>
-              <h3>{`${weatherData.name}, ${weatherData.sys.country}`}</h3>
-              <h2 className="temperature">
-                {Math.round(weatherData.main.temp)}°
-              </h2>
-              <p className="description">
-                {weatherData.weather[0].description}
-              </p>
-            </div>
-            <div className="weather-details">
-              <p>
-                <span>
-                  <i className="fa fa-temperature-high"></i> Temperature:
-                </span>{" "}
-                {Math.round(weatherData.main.temp)}°
-              </p>
-              <p>
-                <span>
-                  <i className="fa fa-droplet"></i> Humidity:
-                </span>{" "}
-                {weatherData.main.humidity}%
-              </p>
-              <p>
-                <span>
-                  <i className="fa fa-wind"></i> Wind Speed:
-                </span>{" "}
-                {weatherData.wind.speed} m/s
-              </p>
-            </div>
-          </div>
-        )}
-
-        {forecastData.length > 0 && (
-          <div className="forecast row">
-            {forecastData.map((forecast, index) => (
-              <div className="col-md-2 mb-3" key={index}>
-                <div className="forecast-day">
-                  <p className="forecast-date">
-                    {new Date(forecast.dt * 1000).toLocaleDateString(
-                      undefined,
-                      {
-                        weekday: "short",
-                        month: "short",
-                        day: "numeric",
-                      }
-                    )}
-                  </p>
-                  {getWeatherIcon(forecast.weather[0].icon)}
-                  <p className="forecast-temp">
-                    {Math.round(forecast.main.temp)}°
-                  </p>
-                  <p className="forecast-desc">
-                    {forecast.weather[0].description}
-                  </p>
+                <div className="unit-selector">
+                  <Thermometer size={16} className="unit-icon" />
+                  <span className="unit-label">Temperature Unit:</span>
+                  <select value={unit} onChange={(e) => setUnit(e.target.value)} className="unit-select">
+                    <option value="metric">Celsius</option>
+                    <option value="imperial">Fahrenheit</option>
+                  </select>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="error-card">
+                <p className="error-message">{error}</p>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {loading && (
+              <div className="loading-card">
+                <div className="loading-content">
+                  <div className="loading-spinner"></div>
+                  <p className="loading-text">Fetching weather data...</p>
+                </div>
+              </div>
+            )}
+
+            {/* Current Weather */}
+            {weatherData && !loading && (
+              <div className="current-weather-card">
+                <div className="current-weather-content">
+                  <div className="weather-main">
+                    <div className="weather-icon-container">{getWeatherIcon(weatherData.weather[0].icon, "lg")}</div>
+
+                    <div className="weather-info">
+                      <h2 className="location">
+                        {weatherData.name}, {weatherData.sys.country}
+                      </h2>
+                      <p className="temperature">
+                        {Math.round(weatherData.main.temp)}
+                        {getTemperatureUnit()}
+                      </p>
+                      <p className="description">{weatherData.weather[0].description}</p>
+                    </div>
+                  </div>
+
+                  <div className="weather-details-grid">
+                    <div className="detail-card">
+                      <Thermometer className="detail-icon" size={24} />
+                      <p className="detail-label">Feels like</p>
+                      <p className="detail-value">
+                        {Math.round(weatherData.main.feels_like)}
+                        {getTemperatureUnit()}
+                      </p>
+                    </div>
+
+                    <div className="detail-card">
+                      <Droplets className="detail-icon" size={24} />
+                      <p className="detail-label">Humidity</p>
+                      <p className="detail-value">{weatherData.main.humidity}%</p>
+                    </div>
+
+                    <div className="detail-card">
+                      <Wind className="detail-icon" size={24} />
+                      <p className="detail-label">Wind Speed</p>
+                      <p className="detail-value">
+                        {weatherData.wind.speed} {getWindUnit()}
+                      </p>
+                    </div>
+
+                    <div className="detail-card">
+                      <Gauge className="detail-icon" size={24} />
+                      <p className="detail-label">Pressure</p>
+                      <p className="detail-value">{weatherData.main.pressure} hPa</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 5-Day Forecast */}
+            {forecastData.length > 0 && !loading && (
+              <div className="forecast-card">
+                <div className="forecast-header">
+                  <h3 className="forecast-title">5-Day Forecast</h3>
+                </div>
+                <div className="forecast-content">
+                  <div className="forecast-grid">
+                    {forecastData.map((forecast, index) => (
+                      <div key={index} className="forecast-item">
+                        <p className="forecast-date">
+                          {new Date(forecast.dt * 1000).toLocaleDateString(undefined, {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </p>
+
+                        <div className="forecast-icon">{getWeatherIcon(forecast.weather[0].icon)}</div>
+
+                        <p className="forecast-temp">
+                          {Math.round(forecast.main.temp)}
+                          {getTemperatureUnit()}
+                        </p>
+
+                        <p className="forecast-desc">{forecast.weather[0].description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -123,7 +123,6 @@ const WeatherApp = () => {
                 <div className="search-row">
                   <div className="search-input-container">
                     <div className="input-wrapper">
-                      <Search className="search-icon" size={20} />
                       <input
                         type="text"
                         placeholder="Enter city name..."
@@ -132,18 +131,13 @@ const WeatherApp = () => {
                         onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                         className="search-input"
                       />
+                      <button onClick={handleSearch} className="btn-search" disabled={loading}>
+                        <Search size={20} />
+                      </button>
+                      <button onClick={handleLocationSearch} className="btn-location" disabled={loading}>
+                        <MapPin size={20} />
+                      </button>
                     </div>
-                  </div>
-
-                  <div className="button-group">
-                    <button onClick={handleSearch} className="btn btn-primary" disabled={loading}>
-                      <Search className="btn-icon" size={16} />
-                      Search
-                    </button>
-                    <button onClick={handleLocationSearch} className="btn btn-outline" disabled={loading}>
-                      <MapPin className="btn-icon" size={16} />
-                      Location
-                    </button>
                   </div>
                 </div>
 
@@ -239,21 +233,19 @@ const WeatherApp = () => {
                     {forecastData.map((forecast, index) => (
                       <div key={index} className="forecast-item">
                         <p className="forecast-date">
-                          {new Date(forecast.dt * 1000).toLocaleDateString(undefined, {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                          })}
+                          {new Date(forecast.dt * 1000).toLocaleDateString(undefined, { weekday: "short" })}
                         </p>
-
-                        <div className="forecast-icon">{getWeatherIcon(forecast.weather[0].icon)}</div>
-
-                        <p className="forecast-temp">
-                          {Math.round(forecast.main.temp)}
-                          {getTemperatureUnit()}
-                        </p>
-
-                        <p className="forecast-desc">{forecast.weather[0].description}</p>
+                        <div className="forecast-icon">
+                          {getWeatherIcon(forecast.weather[0].icon, "sm")}
+                        </div>
+                        <div className="forecast-temps">
+                          <span className="forecast-temp-max">
+                            {Math.round(forecast.main.temp_max)}{getTemperatureUnit()}
+                          </span>
+                          <span className="forecast-temp-min">
+                            {Math.round(forecast.main.temp_min)}{getTemperatureUnit()}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>

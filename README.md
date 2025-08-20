@@ -20,7 +20,7 @@ A modern weather forecast application built with React, Vite, and Tailwind CSS. 
 
 1. **Clone the repository:**
    ```powershell
-   git clone https://github.com/your-username/weather-app.git
+   git clone https://github.com/11Siya05/weather-app.git
    cd weather-app
    ```
 2. **Install dependencies:**

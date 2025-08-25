@@ -53,10 +53,5 @@ A modern weather forecast application built with React, Vite, and Tailwind CSS. 
 ## Configuration
 This app uses the [OpenWeatherMap API](https://openweathermap.org/api). The API key is currently hardcoded for demonstration. For production, store your API key securely (e.g., in environment variables).
 
-## License
-[MIT](LICENSE)
 
----
-
-*Made with ❤️ by Siyamthanda Khumalo*
 
